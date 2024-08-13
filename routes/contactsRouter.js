@@ -1,4 +1,5 @@
 import express from "express";
+
 import contactsControllers from "../controllers/contactsControllers.js";
 import validateBody from "../helpers/validateBody.js";
 import {
@@ -7,8 +8,11 @@ import {
   updateContactStatusSchema,
 } from "../schemas/contactsSchemas.js";
 import isEmptyBody from "../helpers/isEmptyBody.js";
+import authenticate from "../middlewares/authenticate.js";
 
 const contactsRouter = express.Router();
+
+contactsRouter.use(authenticate);
 
 contactsRouter.get("/", contactsControllers.getAllContacts);
 
