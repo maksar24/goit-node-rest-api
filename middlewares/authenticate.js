@@ -2,7 +2,8 @@ import jwt from "jsonwebtoken";
 
 import HttpError from "../helpers/HttpError.js";
 import authServices from "../services/authServices.js";
-import { secretKey } from "../constants/authConstants.js";
+
+const { JWT_SECRET } = process.env;
 
 const authenticate = async (req, _, next) => {
   const { authorization } = req.headers;
@@ -18,7 +19,7 @@ const authenticate = async (req, _, next) => {
   }
 
   try {
-    const { id } = jwt.verify(token, secretKey);
+    const { id } = jwt.verify(token, JWT_SECRET);
     const user = await authServices.findUser({ id });
     if (!user) {
       return next(HttpError(401, "Not authorized"));

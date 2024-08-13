@@ -1,10 +1,11 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-import { secretKey } from "../constants/authConstants.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import authServices from "../services/authServices.js";
 import HttpError from "../helpers/HttpError.js";
+
+const { JWT_SECRET } = process.env;
 
 const signup = async (req, res) => {
   const newUser = await authServices.signup(req.body);
@@ -34,7 +35,7 @@ const login = async (req, res) => {
     id,
   };
 
-  const token = jwt.sign(payload, secretKey, { expiresIn: "24h" });
+  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
   await authServices.updateUser({ id }, { token });
 
   res.json({
@@ -53,6 +54,15 @@ const logout = async (req, res) => {
   res.status(204).json();
 };
 
+const getCurrent = async (req, res) => {
+  const { email, subscription } = req.user;
+
+  res.json({
+    email,
+    subscription,
+  });
+};
+
 const updateUserType = async (req, res) => {
   const { id } = req.user;
   const { subscription } = req.body;
@@ -69,5 +79,6 @@ export default {
   signup: ctrlWrapper(signup),
   login: ctrlWrapper(login),
   logout: ctrlWrapper(logout),
+  getCurrent: ctrlWrapper(getCurrent),
   updateUserType: ctrlWrapper(updateUserType),
 };
