@@ -1,30 +1,39 @@
-import { where } from "sequelize";
-import User from "../db/models/User.js";
+import Contact from "../db/models/Contact.js";
 
-const listContacts = () => User.findAll();
+const listContacts = (query = {}, { page = 1, limit = 20 }) => {
+  const normalizedLimit = Number(limit);
+  const offset = (Number(page) - 1) * normalizedLimit;
 
-const addContact = (data) => User.create(data);
+  return Contact.findAll({
+    where: query,
+    offset,
+    limit: normalizedLimit,
+  });
+};
 
-const getContactById = (id) => User.findByPk(id);
+const addContact = (data) => Contact.create(data);
 
-const removeContact = async (id) => {
-  const contact = await User.findByPk(id);
+const getContactById = (query) =>
+  Contact.findOne({
+    where: query,
+  });
+
+const removeContact = async (query) => {
+  const contact = await getContactById(query);
 
   if (!contact) {
     return null;
   }
 
-  await User.destroy({
-    where: {
-      id,
-    },
+  await Contact.destroy({
+    where: query,
   });
 
   return contact;
 };
 
-const updateContactById = async (id, data) => {
-  const contact = await User.findByPk(id);
+const updateContactById = async (query, data) => {
+  const contact = await getContactById(query);
 
   if (!contact) {
     return null;
@@ -35,8 +44,8 @@ const updateContactById = async (id, data) => {
   });
 };
 
-const updateStatusContact = async (id, { favorite }) => {
-  const contact = await User.findByPk(id);
+const updateStatusContact = async (query, { favorite }) => {
+  const contact = await getContactById(query);
 
   if (!contact) {
     return null;
