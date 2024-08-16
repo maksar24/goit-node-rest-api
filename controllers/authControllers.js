@@ -1,11 +1,14 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import * as fs from "node:fs/promises";
+import path from "node:path";
 
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import authServices from "../services/authServices.js";
 import HttpError from "../helpers/HttpError.js";
 
 const { JWT_SECRET } = process.env;
+const avatarsPath = path.resolve("public", "avatars");
 
 const signup = async (req, res) => {
   const newUser = await authServices.signup(req.body);
@@ -75,10 +78,25 @@ const updateUserType = async (req, res) => {
   });
 };
 
+const updateUserAvatar = async (req, res) => {
+  const { id } = req.user;
+  const { path: oldPath, filename } = req.file;
+  const newPath = path.join(avatarsPath, filename);
+  await fs.rename(oldPath, newPath);
+  const avatarURL = path.join("avatars", filename);
+
+  const user = await authServices.updateUser({ id }, { avatarURL });
+
+  res.json({
+    avatarURL: user.avatarURL,
+  });
+};
+
 export default {
   signup: ctrlWrapper(signup),
   login: ctrlWrapper(login),
   logout: ctrlWrapper(logout),
   getCurrent: ctrlWrapper(getCurrent),
   updateUserType: ctrlWrapper(updateUserType),
+  updateUserAvatar: ctrlWrapper(updateUserAvatar),
 };
