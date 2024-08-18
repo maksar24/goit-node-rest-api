@@ -8,6 +8,7 @@ import {
 } from "../schemas/authSchemas.js";
 import authControllers from "../controllers/authControllers.js";
 import authenticate from "../middlewares/authenticate.js";
+import upload from "../middlewares/upload.js";
 
 const authRouter = Router();
 
@@ -28,6 +29,13 @@ authRouter.patch(
   authenticate,
   validateBody(authUserTypeSchema),
   authControllers.updateUserType
+);
+
+authRouter.patch(
+  "/avatars",
+  authenticate,
+  upload.single("avatar"),
+  authControllers.updateUserAvatar
 );
 
 export default authRouter;
