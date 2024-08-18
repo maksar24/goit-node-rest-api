@@ -5,34 +5,33 @@ import app from "../app.js";
 import User from "../db/models/User.js";
 
 describe("test /login route", () => {
-  beforeAll(async () => {
-    await User.sync({ force: true });
-  });
-
   afterAll(async () => {
+    await User.destroy({
+      where: { email: "test@example.com" },
+    });
     await sequelize.close();
   });
 
   it("should return status code 200 and a token in the response", async () => {
     const registerResponse = await request(app)
       .post("/api/auth/register")
-      .send({ email: "test1@example.com", password: "password123" });
+      .send({ email: "test@example.com", password: "password123" });
 
     expect(registerResponse.statusCode).toBe(201);
 
     const response = await request(app)
       .post("/api/auth/login")
-      .send({ email: "test1@example.com", password: "password123" });
+      .send({ email: "test@example.com", password: "password123" });
 
     expect(response.statusCode).toBe(200);
     expect(response.body.token).toBeDefined();
     expect(response.body.user).toEqual({
-      email: "test1@example.com",
+      email: "test@example.com",
       subscription: "starter",
     });
 
     const updatedUser = await User.findOne({
-      where: { email: "test1@example.com" },
+      where: { email: "test@example.com" },
     });
     expect(updatedUser.token).toBe(response.body.token);
   });
