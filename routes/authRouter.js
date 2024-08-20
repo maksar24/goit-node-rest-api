@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import validateBody from "../helpers/validateBody.js";
 import {
+  authEmailSchema,
   authLoginSchema,
   authSignupSchema,
   authUserTypeSchema,
@@ -16,6 +17,14 @@ authRouter.post(
   "/register",
   validateBody(authSignupSchema),
   authControllers.signup
+);
+
+authRouter.get("/verify/:verificationToken", authControllers.verify);
+
+authRouter.post(
+  "/verify",
+  validateBody(authEmailSchema),
+  authControllers.resendVerify
 );
 
 authRouter.post("/login", validateBody(authLoginSchema), authControllers.login);
